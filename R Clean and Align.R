@@ -1115,7 +1115,7 @@ country_region_mapping <- tibble::tribble(
   # "Azerbaijan", "Asia",
   # "Honduras", "North America",
   # "Marshall Islands", "Oceania"
-)
+  "Kosovo*", "Europe") #Kosovo* added in March 2025, we May have to recode due to asterisk
 
 country_region_mapping <- country_region_mapping %>%
   unique()
@@ -1646,7 +1646,33 @@ write_csv(group_roster_final, group_roster_file)
 message("✅ Cleaned version of `group_roster` saved as `analysis_ready_group_roster.csv`.")
 
 # ======================================================
-# Step 38: Backup Analysis Ready Files with a Timestamp
+# Step 38: Recode `group_roster` for Analysis Ready File
+# ======================================================
+
+# Define file path
+roster_file <- "10 Data/Analysis Ready Files/analysis_ready_group_roster.csv"
+
+# Load dataset
+roster_data <- read_csv(roster_file)
+
+# Apply recoding ONLY where:
+# - ryear == 2024
+# - mcountry == "Norway"
+# - PRO09 or PRO10.A is exactly 2 (no other values are changed)
+roster_data <- roster_data %>%
+  mutate(
+    PRO09 = ifelse(ryear == 2024 & mcountry == "Norway" & PRO09 == 2, 1, PRO09),
+    `PRO10.A` = ifelse(ryear == 2024 & mcountry == "Norway" & `PRO10.A` == 2, 1, `PRO10.A`)
+  )
+
+# Save the updated dataset
+write_csv(roster_data, roster_file)
+
+# Print success message
+cat("Recode applied to 'analysis_ready_group_roster.csv' ONLY for Norway (2024) where values were 2, and saved.\n")
+
+# ======================================================
+# Step 39: Backup Analysis Ready Files with a Timestamp
 # ======================================================
 
 # Load necessary libraries
